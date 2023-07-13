@@ -21,10 +21,7 @@ impl<T> std::option::Option<T> {
     #[pure]
     #[ensures(result == matches!(self, Some(_)))]
     pub const fn is_some(&self) -> bool;
-}
 
-#[extern_spec]
-impl<T> std::option::Option<T> {
     #[ensures(result === old(snap(self)))]
     #[ensures(self.is_none())]
     pub fn take(&mut self) -> Option<T>;
@@ -131,7 +128,7 @@ impl List {
         && self.head_removed(&old(snap(self)))
     )]
     pub fn try_pop(&mut self) -> Option<i32> {
-        match std::mem::replace(&mut self.head, None) {
+        match self.head.take() {
             None => None,
             Some(node) => {
                 self.head = node.next;
