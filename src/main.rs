@@ -1,4 +1,6 @@
 use prusti_contracts::*;
+mod max;
+mod testing;
 
 #[extern_spec(std::mem)]
 #[ensures(snap(dest) === src)]
@@ -154,6 +156,34 @@ impl List {
     #[ensures(self.head_removed(&old(snap(self))))]
     pub fn pop(&mut self) -> i32 {
         self.try_pop().unwrap()
+    }
+}
+
+#[cfg(prusti)]
+mod prusti_tests {
+    use super::*;
+
+    fn _test_list() {
+        let mut list = List::new();
+        prusti_assert!(list.is_empty() && list.len() == 0);
+
+        list.push(5);
+        list.push(10);
+        prusti_assert!(!list.is_empty() && list.len() == 2);
+        prusti_assert!(list.lookup(0) == 10);
+        prusti_assert!(list.lookup(1) == 5);
+
+        let x = list.pop();
+        prusti_assert!(x == 10);
+
+        match list.try_pop() {
+            Some (y) => assert!(y == 5),
+            None => unreachable!(),
+        }
+
+        let z = list.try_pop();
+        prusti_assert!(list.is_empty() && list.len() == 0);
+        prusti_assert!(z.is_none());
     }
 }
 
